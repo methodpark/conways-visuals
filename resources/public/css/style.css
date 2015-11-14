@@ -1,9 +1,13 @@
+html {
+    background-color: gray;
+}
+
 h1 {
   text-decoration: underline;
 }
 
 .dead {
-    background: red;
+    background: white;
 }
 
 .alive {

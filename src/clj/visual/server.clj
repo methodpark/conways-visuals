@@ -1,9 +1,10 @@
 (ns visual.server
   (:require [clojure.java.io :as io]
             [visual.dev :refer [is-dev? inject-devmode-html browser-repl start-figwheel]]
-            [compojure.core :refer [GET defroutes]]
+            [compojure.core :refer [GET PUT defroutes]]
             [compojure.route :refer [resources]]
             [net.cgrand.enlive-html :refer [deftemplate]]
+            [cheshire.core :as json]
             [net.cgrand.reload :refer [auto-reload]]
             [ring.middleware.reload :as reload]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
@@ -16,9 +17,23 @@
 (deftemplate page (io/resource "index.html") []
   [:body] (if is-dev? inject-devmode-html identity))
 
+(def state (atom #{[1 2] [1 3] [0 0] [2 3] [5 5]}))
+
+(defn save-board [r]
+  (try
+    (let [pl (:body r)
+          j (json/parse-string (slurp pl) true)]
+      (println pl)
+      (reset! state (set (:living j)))
+      "okay")
+    (catch Exception e
+      "nope")))
+
 (defroutes routes
   (resources "/")
   (resources "/react" {:root "react"})
+  (PUT "/board" req  (save-board req))
+  (GET "/board" req (pr-str @state))
   (GET "/*" req (page)))
 
 (defn- wrap-browser-caching-opts [handler] (wrap-browser-caching handler (or (env :browser-caching) {})))

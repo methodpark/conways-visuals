@@ -1,6 +1,6 @@
-(defproject visual "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject de.methodpark/visual "0.1.0-SNAPSHOT"
+  :description "A Conways Game of Life visualization server."
+  :url "http://github.com/methodpark"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
@@ -10,7 +10,9 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.145" :scope "provided"]
+                 [org.clojure/core.async "0.2.374"]
                  [ring "1.4.0"]
+                 [cheshire "5.5.0"]
                  [ring/ring-defaults "0.1.5"]
                  [slester/ring-browser-caching "0.1.1"]
                  [bk/ring-gzip "0.1.1"]

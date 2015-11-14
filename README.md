@@ -1,4 +1,42 @@
-# visual
+# Conways Game Of Life Visualisation
+
+## Rationale
+
+Running this project will start a http server listening on port 10555.
+When opening http://localhost:10555/ with a browser should see a `Conways game of live` board.
+The board itself is not calculated by the server, it's only displaying it.
+To put a new board to the server one has to send a HTTP PUT request to the
+`/board` route.
+The new board has to be in JSON format and has to be of the following scheme:
+```javascript
+{"living": [<list of living cells>]}
+```
+Where <list of living cells> are arrays of x and y coordinates on a two dimensional
+board. [0 0] represents the upper left corner. Negative coordinates are not rendered by the
+clients as of now.
+
+So when repeatedly pushing updated board states to the server the clients should be displaying
+the world changing as they poll the server in short cycles.
+
+### Starting the server
+
+To start the server open a console in the projects main directory and run `java -jar bin/visual.jar`.
+You should then see a output like:
+
+```
+2015-12-04 10:39:17.011:INFO::main: Logging initialized @2440ms
+Starting web server on port 10555.
+2015-12-04 10:39:17.142:INFO:oejs.Server:main: jetty-9.2.z-SNAPSHOT
+2015-12-04 10:39:17.163:INFO:oejs.ServerConnector:main: Started ServerConnector@3f54dd88{HTTP/1.1}{0.0.0.0:10555}
+2015-12-04 10:39:17.163:INFO:oejs.Server:main: Started @2592ms
+```
+Then point your browser to http://localhost:10555/ and start sending new boards to the server.
+
+## Disclaimer
+
+This code was put together in a hurry at the global day of code retreat 2015.
+Its sole purpose was to visualise the outcome of the other participants.
+Hence the code quality in itself has to be taken with a grain of salt. ;-)
 
 
 ## Development
@@ -81,7 +119,7 @@ Now your app is running at
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2014 Benjamin Klüglein
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
