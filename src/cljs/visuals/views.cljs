@@ -2,20 +2,45 @@
   (:require
    [re-frame.core :as re-frame]
    [visuals.subs :as subs]
-   ))
+   [visuals.events :as events]))
 
+
+(defn Cell
+  [alive?]
+  [:td.cell {:class (if alive? "alive" "dead")}])
+
+(defn Board
+  []
+  (let [board    (re-frame/subscribe [::subs/board])
+        num-cols (re-frame/subscribe [::subs/num-cols])
+        num-rows (re-frame/subscribe [::subs/num-rows])]
+    [:div.board
+     [:h3 "Board"]
+     [:table>tbody
+      (doall
+       (for [j (range @num-rows)]
+         ^{:key (str "row" j)}
+         [:tr
+          (doall
+           (for [i (range @num-cols)]
+             (let [coords [i j]
+                   alive? (contains? @board coords)]
+               ^{:key (str i j)} [Cell alive?])))]))]]))
 
 ;; home
+
+(defn Debug
+  ""
+  []
+  [:div.debug
+   [:h2 "debug"]
+   [:button {:on-click (fn [] (re-frame/dispatch [::events/randomize-board]))} "Randomize world"]])
 
 (defn home-panel []
   (let [name (re-frame/subscribe [::subs/name])]
     [:div
-     [:h1 (str "Hello from " @name ". This is the Home Page.")]
-
-     [:div
-      [:a {:href "#/about"}
-       "go to About Page"]]
-     ]))
+     [Debug]
+     [Board]]))
 
 
 ;; about
