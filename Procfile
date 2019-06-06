@@ -1,1 +1,1 @@
-web: java $JVM_OPTS -cp target/visual.jar clojure.main -m visual.server
+web: java $JVM_OPTS -cp target/visuals.jar clojure.main -m visuals.server

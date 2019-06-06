@@ -1,87 +1,82 @@
-(defproject de.methodpark/visual "0.1.0-SNAPSHOT"
-  :description "A Conways Game of Life visualization server."
-  :url "http://github.com/methodpark"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+(defproject visuals "0.1.0-SNAPSHOT"
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/clojurescript "1.10.520"]
+                 [reagent "0.8.1"]
+                 [re-frame "0.10.6"]
+                 [secretary "1.2.3"]
+                 [garden "1.3.5"]
+                 [ns-tracker "0.3.1"]
+                 [compojure "1.5.0"]
+                 [yogthos/config "0.8"]
+                 [ring "1.4.0"]]
 
-  :source-paths ["src/clj"]
+  :plugins [[lein-cljsbuild "1.1.7"]
+            [lein-garden "0.2.8"]]
 
-  :test-paths ["test/clj"]
+  :min-lein-version "2.5.3"
 
-  :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.145" :scope "provided"]
-                 [org.clojure/core.async "0.2.374"]
-                 [ring "1.4.0"]
-                 [cheshire "5.5.0"]
-                 [ring/ring-defaults "0.1.5"]
-                 [slester/ring-browser-caching "0.1.1"]
-                 [bk/ring-gzip "0.1.1"]
-                 [compojure "1.4.0"]
-                 [enlive "1.1.6"]
-                 [org.omcljs/om "1.0.0-alpha15"]
-                 [environ "1.0.1"]
-                 [prismatic/om-tools "0.3.11"]]
+  :source-paths ["src/clj" "src/cljs"]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-environ "1.0.1"]]
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
+                                    "test/js"
+                                    "resources/public/css"]
 
-  :min-lein-version "2.5.0"
+  :figwheel {:css-dirs ["resources/public/css"]
+             :ring-handler visuals.handler/dev-handler}
 
-  :uberjar-name "visual.jar"
+  :garden {:builds [{:id           "screen"
+                     :source-paths ["src/clj"]
+                     :stylesheet   visuals.css/screen
+                     :compiler     {:output-to     "resources/public/css/screen.css"
+                                    :pretty-print? true}}]}
 
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
-                             :compiler {:output-to     "resources/public/js/app.js"
-                                        :output-dir    "resources/public/js/out"
-                                        :source-map    "resources/public/js/out.js.map"
-                                        :preamble      ["react/react.min.js"]
-                                        :optimizations :none
-                                        :pretty-print  true}}}}
+  :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
-  :profiles {:dev {:source-paths ["env/dev/clj"]
-                   :test-paths ["test/clj"]
+  :profiles
+  {:dev
+   {:dependencies [[binaryage/devtools "0.9.10"]
+                   [figwheel-sidecar "0.5.16"]
+                   [cider/piggieback "0.3.5"]]
 
-                   :dependencies [[figwheel "0.4.1"]
-                                  [figwheel-sidecar "0.4.1"]
-                                  [com.cemerick/piggieback "0.2.1"]
-                                  [org.clojure/tools.nrepl "0.2.12"]
-                                  [weasel "0.7.0"]]
+    :plugins      [[lein-figwheel "0.5.18"]
+                   [lein-doo "0.1.8"]]}
+   :prod { }
+   :uberjar {:source-paths ["env/prod/clj"]
+             :omit-source  true
+             :main         visuals.server
+             :aot          [visuals.server]
+             :uberjar-name "visuals.jar"
+             :prep-tasks   ["compile" ["cljsbuild" "once" "min"]["garden" "once"]]}
+   }
 
-                   :repl-options {:init-ns visual.server
-                                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+  :cljsbuild
+  {:builds
+   [{:id           "dev"
+     :source-paths ["src/cljs"]
+     :figwheel     {:on-jsload "visuals.core/mount-root"}
+     :compiler     {:main                 visuals.core
+                    :output-to            "resources/public/js/compiled/app.js"
+                    :output-dir           "resources/public/js/compiled/out"
+                    :asset-path           "js/compiled/out"
+                    :source-map-timestamp true
+                    :preloads             [devtools.preload]
+                    :external-config      {:devtools/config {:features-to-install :all}}
+                    }}
 
-                   :plugins [[lein-figwheel "0.4.1"]]
+    {:id           "min"
+     :source-paths ["src/cljs"]
+     :jar true
+     :compiler     {:main            visuals.core
+                    :output-to       "resources/public/js/compiled/app.js"
+                    :optimizations   :advanced
+                    :closure-defines {goog.DEBUG false}
+                    :pretty-print    false}}
 
-                   :figwheel {:http-server-root "public"
-                              :server-port 3449
-                              :css-dirs ["resources/public/css"]
-                              :ring-handler visual.server/http-handler}
-
-                   :env {:is-dev true
-                         :browser-caching {"text/javascript" 0
-                                           "text/html" 0}}
-
-                   :cljsbuild {:test-commands { "test" ["phantomjs" "env/test/js/unit-test.js" "env/test/unit-test.html"] }
-                               :builds {:app {:source-paths ["env/dev/cljs"]}
-                                        :test {:source-paths ["src/cljs" "test/cljs"]
-                                               :compiler {:output-to     "resources/public/js/app_test.js"
-                                                          :output-dir    "resources/public/js/test"
-                                                          :source-map    "resources/public/js/test.js.map"
-                                                          :preamble      ["react/react.min.js"]
-                                                          :optimizations :whitespace
-                                                          :pretty-print  false}
-                                               :notify-command  ["phantomjs" "bin/speclj" "resources/public/js/app_test.js"]
-                                               }}}}
-
-             :uberjar {:source-paths ["env/prod/clj"]
-                       :hooks [leiningen.cljsbuild]
-                       :env {:production true
-                             :browser-caching {"text/javascript" 604800
-                                               "text/html" 0}}
-                       :omit-source true
-                       :aot :all
-                       :main visual.server
-                       :cljsbuild {:builds {:app
-                                            {:source-paths ["env/prod/cljs"]
-                                             :compiler
-                                             {:optimizations :advanced
-                                              :pretty-print false}}}}}})
+    {:id           "test"
+     :source-paths ["src/cljs" "test/cljs"]
+     :compiler     {:main          visuals.runner
+                    :output-to     "resources/public/js/compiled/test.js"
+                    :output-dir    "resources/public/js/compiled/test/out"
+                    :optimizations :none}}
+    ]}
+  )

@@ -1,12 +1,5 @@
+/*.log
 /target
-/classes
-/checkouts
-pom.xml
-pom.xml.asc
-/target/*.jar
-*.class
-/.lein-*
-/.nrepl-port
-/resources/public/js
-/out
-/.repl
+/*-init.clj
+/resources/public/js/compiled
+out
