@@ -29,18 +29,36 @@
 
 ;; home
 
-(defn Debug
-  ""
+(defn Controlls
   []
-  [:div.debug
-   [:h2 "debug"]
-   [:button {:on-click (fn [] (re-frame/dispatch [::events/randomize-board]))} "Randomize world"]])
+  (let [poll-server?          (re-frame/subscribe [::subs/poll-server?])
+        poll-server-intervall (re-frame/subscribe [::subs/poll-server-intervall-in-seconds])]
+    [:div.controlls
+     [:div [:input {:type      :checkbox :value @poll-server?
+                    :on-change (fn [] (re-frame/dispatch [::events/toggle-poll]))}] "Poll server?"]
+     [:div [:input {:type      :number :value @poll-server-intervall
+                    :min       1       :max   30
+                    :on-change (fn [e]
+                                 (re-frame/dispatch [::events/set-poll-intervall (-> e .-target .-value js/parseInt)]))}] " seconds"]]))
+
+
+(defn Debug
+  []
+  (let [error (re-frame/subscribe [::subs/error])]
+   [:div.debug
+    [:h2 "debug"]
+    [:button {:on-click (fn [] (re-frame/dispatch [::events/randomize-board]))} "Randomize world"]
+    [:button {:on-click (fn [] (re-frame/dispatch [::events/fetch-board]))} "Fetch world"]
+    [:button {:on-click #(re-frame/dispatch [::events/send-current-board])} "Send current board"]
+    (when @error
+      [:div.error
+       (str @error)])]))
 
 (defn home-panel []
-  (let [name (re-frame/subscribe [::subs/name])]
-    [:div
+  [:div
      [Debug]
-     [Board]]))
+     [Controlls]
+     [Board]])
 
 
 ;; about

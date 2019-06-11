@@ -1,0 +1,11 @@
+# -*- restclient -*-
+
+GET http://localhost:3449/board
+
+
+#
+PUT http://localhost:3449/board
+Content-Type: application/json
+
+
+[[1, 1], [2, 2], [3, 30]]

@@ -19,6 +19,27 @@
    (->> board (map first) (apply max) inc)))
 
 (re-frame/reg-sub
+ ::error
+ (fn [db]
+   (:error db)))
+
+(re-frame/reg-sub
+ ::poll-server?
+ (fn [db]
+   (:poll-server? db)))
+
+(re-frame/reg-sub
+ ::poll-server-intervall
+ (fn [db]
+   (:poll-server-intervall db)))
+
+(re-frame/reg-sub
+ ::poll-server-intervall-in-seconds
+ :<- [::poll-server-intervall]
+ (fn [interval]
+   (-> interval (/ 1000) int)))
+
+(re-frame/reg-sub
  ::num-rows
  :<- [::board]
  (fn [board]

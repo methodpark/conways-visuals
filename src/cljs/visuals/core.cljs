@@ -23,4 +23,5 @@
   (routes/app-routes)
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
-  (mount-root))
+  (mount-root)
+  (re-frame/dispatch [::events/poll-server-loop]))
